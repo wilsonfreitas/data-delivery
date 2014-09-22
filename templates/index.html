@@ -1,142 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Data Delivery the easiest way to share your data</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="">
-  <meta name="author" content="Wilson Freitas">
-
-	<!--link rel="stylesheet/less" href="less/bootstrap.less" type="text/css" /-->
-	<!--link rel="stylesheet/less" href="less/responsive.less" type="text/css" /-->
-	<!--script src="js/less-1.3.3.min.js"></script-->
-	<!--append ‘#!watch’ to the browser URL, then refresh the page. -->
-	
-	<link href="static/css/bootstrap.min.css" rel="stylesheet">
-	<link href="static/css/style.css" rel="stylesheet">
-
-  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-  <!--[if lt IE 9]>
-    <script src="js/html5shiv.js"></script>
-  <![endif]-->
-
-  <!-- Fav and touch icons -->
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="static/img/apple-touch-icon-144-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="static/img/apple-touch-icon-114-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="static/img/apple-touch-icon-72-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" href="static/img/apple-touch-icon-57-precomposed.png">
-  <!-- <link rel="shortcut icon" href="static/img/favicon.png"> -->
-	<script type="text/javascript" src="static/js/jquery.min.js"></script>
-	<script type="text/javascript" src="static/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="static/js/scripts.js"></script>
-</head>
-<body>
-<nav class="navbar navbar-default" role="navigation">
-	<div class="navbar-header">
-		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-			<span class="sr-only">Toggle navigation</span>
-			<span class="icon-bar"></span>
-			<span class="icon-bar"></span>
-			<span class="icon-bar"></span>
-		</button>
-		<a class="navbar-brand" href="/">Data Delivery</a>
-	</div>
-	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-		<ul class="nav navbar-nav navbar-right">
-			<li class="dropdown">
-				 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown<strong class="caret"></strong></a>
-				<ul class="dropdown-menu">
-					<li>
-						<a href="#">Action</a>
-					</li>
-					<li>
-						<a href="#">Another action</a>
-					</li>
-					<li>
-						<a href="#">Something else here</a>
-					</li>
-					<li class="divider">
-					</li>
-					<li>
-						<a href="#">Separated link</a>
-					</li>
-				</ul>
-			</li>
-		</ul>
-	</div>
-</nav>
-<div class="container" style="font-size: 75%;">
-	<div class="row clearfix">
-	{% block body %}
-		{% if error %}
-		<div class="alert alert-danger alert-dismissable">
-			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-			<strong>Error!</strong> {{ error }}
-		</div>
-		{% endif %}
-		<div class="col-md-6 column">
-			<form role="form" action="{{ form_url }}" method="post" accept-charset="utf-8">
-				<div class="form-group">
-					<label for="url">Name</label>
-					<input type="text" class="form-control input-sm" name="name" placeholder="{{ name }}" value="{{ name }}">
-				</div>
-				<div class="form-group">
-					<label for="url">Description</label>
-					<input type="text" class="form-control input-sm" name="description" placeholder="{{ description }}" value="{{ description }}">
-				</div>
-				<div class="form-group">
-					<label for="url">URL</label>
-					<input type="text" class="form-control input-sm" name="url" placeholder="{{ url }}" value="{{ url }}">
-				</div>
-				<div class="form-group">
-					<label for="css">CSS</label>
-					<input type="text" class="form-control input-sm" name="css" placeholder="{{ css }}" value="{{ css }}">
-				</div>
-				<div class="form-group">
-					<div class="row">
-						<div class="col-xs-3">
-							<label for="css">Col. number</label>
-							<input type="number" class="form-control input-sm" name="col_number" value="{{ col_number or 0 }}">
-						</div>
-						<div class="col-xs-3">
-							<label for="css">Occurrence</label>
-							<input type="number" class="form-control input-sm" name="occurrence" value="{{ occurrence or 0 }}">
-						</div>
-						<div class="col-xs-3">
-							<div class="checkbox">
-								<label><input type="checkbox" name="gettext" value="checked" {{gettext}}> Get text</label>
-							</div>
-						</div>
-						<div class="col-xs-3">
-							<div class="checkbox">
-								<label><input type="checkbox" name="parse_table" value="checked" {{parse_table}}> Parse Table</label>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<div class="row">
-						<div class="col-xs-2">
-							<label for="css">Decimal sep.</label>
-							<input type="text" class="form-control input-sm" name="decimal_sep" placeholder="{{ decimal_sep }}" value="{{ decimal_sep }}">
-						</div>
-						<div class="col-xs-2	">
-							<label for="css">Thousands sep.</label>
-							<input type="text" class="form-control input-sm" name="thousands_sep" placeholder="{{ thousands_sep }}" value="{{ thousands_sep }}">
-						</div>
-					</div>
-				</div>
-				<button type="submit" class="btn btn-default input-sm">Submit</button>
-			</form>
-		</div>
-		<div class="col-md-6 column">
-			{# for tok in result %}
-			{% endfor #}
-			<p>Selector occurrences: {{ occurrences }}</p>
-			<pre class="pre-scrollable">{{ '\n---\n'.join(result) }}</pre>
-		</div>
-	{% endblock %}
-	</div>
+{% extends "base.html" %}
+{% block body %}
+<div class="jumbotron">
+	<h1>
+		Hello, world!
+	</h1>
+	<p>
+		This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.
+	</p>
+	<p>
+		<a class="btn btn-primary btn-large" href="#">Learn more</a>
+	</p>
 </div>
-</body>
-</html>
+<div class="col-md-4 column">
+	<h2>
+		Heading
+	</h2>
+	<p>
+		Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+	</p>
+	<p>
+		<a class="btn" href="#">View details »</a>
+	</p>
+</div>
+<div class="col-md-4 column">
+	<h2>
+		Heading
+	</h2>
+	<p>
+		Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+	</p>
+	<p>
+		<a class="btn" href="#">View details »</a>
+	</p>
+</div>
+<div class="col-md-4 column">
+	<h2>
+		Heading
+	</h2>
+	<p>
+		Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+	</p>
+	<p>
+		<a class="btn" href="#">View details »</a>
+	</p>
+</div>
+{% endblock %}

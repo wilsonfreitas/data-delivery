@@ -27,6 +27,7 @@ def custom_dispatcher(router, request, response):
         rv = webapp2.Response(*rv)
     return rv
 
+
 app = webapp2.WSGIApplication(debug=True)
 app.router.set_dispatcher(custom_dispatcher)
 welapp = app
@@ -36,6 +37,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
         'templates')),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
+
 
 def render_template(template, **variables):
     jj = JINJA_ENVIRONMENT.get_template('%s.html' % template)

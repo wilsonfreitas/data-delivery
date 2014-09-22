@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+		</div>
+	</div>
+	<div class="row clearfix">
+		<div class="col-md-4 column">
+			<h2>
+				Heading
+			</h2>
+			<p>
+				Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+			</p>
+			<p>
+				<a class="btn" href="#">View details »</a>
+			</p>
+		</div>
+		<div class="col-md-4 column">
+			<h2>
+				Heading
+			</h2>
+			<p>
+				Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+			</p>
+			<p>
+				<a class="btn" href="#">View details »</a>
+			</p>
+		</div>
+		<div class="col-md-4 column">
+			<h2>
+				Heading
+			</h2>
+			<p>
+				Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+			</p>
+			<p>
+				<a class="btn" href="#">View details »</a>
+			</p>
+		</div>
+	</div>
+</div>
+{% if error %}
+<div class="alert alert-danger alert-dismissable">
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	<strong>Error!</strong> {{ error }}
+</div>
+{% endif %}
+<div class="col-md-6 column">
+	<form role="form" action="{{ form_url }}" method="post" accept-charset="utf-8">
+		<div class="form-group">
+			<label for="url">Name</label>
+			<input type="text" class="form-control input-sm" name="name" placeholder="{{ name }}" value="{{ name }}">
+		</div>
+		<div class="form-group">
+			<label for="url">Description</label>
+			<input type="text" class="form-control input-sm" name="description" placeholder="{{ description }}" value="{{ description }}">
+		</div>
+		<div class="form-group">
+			<label for="url">URL</label>
+			<input type="text" class="form-control input-sm" name="url" placeholder="{{ url }}" value="{{ url }}">
+		</div>
+		<div class="form-group">
+			<label for="css">CSS</label>
+			<input type="text" class="form-control input-sm" name="css" placeholder="{{ css }}" value="{{ css }}">
+		</div>
+		<div class="form-group">
+			<div class="row">
+				<div class="col-xs-3">
+					<label for="css">Col. number</label>
+					<input type="number" class="form-control input-sm" name="col_number" value="{{ col_number or 0 }}">
+				</div>
+				<div class="col-xs-3">
+					<label for="css">Occurrence</label>
+					<input type="number" class="form-control input-sm" name="occurrence" value="{{ occurrence or 0 }}">
+				</div>
+				<div class="col-xs-3">
+					<div class="checkbox">
+						<label><input type="checkbox" name="gettext" value="checked" {{gettext}}> Get text</label>
+					</div>
+				</div>
+				<div class="col-xs-3">
+					<div class="checkbox">
+						<label><input type="checkbox" name="parse_table" value="checked" {{parse_table}}> Parse Table</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="row">
+				<div class="col-xs-2">
+					<label for="css">Decimal sep.</label>
+					<input type="text" class="form-control input-sm" name="decimal_sep" placeholder="{{ decimal_sep }}" value="{{ decimal_sep }}">
+				</div>
+				<div class="col-xs-2	">
+					<label for="css">Thousands sep.</label>
+					<input type="text" class="form-control input-sm" name="thousands_sep" placeholder="{{ thousands_sep }}" value="{{ thousands_sep }}">
+				</div>
+			</div>
+		</div>
+		<button type="submit" class="btn btn-default input-sm">Submit</button>
+	</form>
+</div>
+<div class="col-md-6 column">
+	{# for tok in result %}
+	{% endfor #}
+	<p>Selector occurrences: {{ occurrences }}</p>
+	<pre class="pre-scrollable">{{ '\n---\n'.join(result) }}</pre>
+</div>
+{% endblock %}
