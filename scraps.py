@@ -5,9 +5,9 @@ import pprint
 import inspect
 import urllib2
 from datetime import datetime
+from lxml import html
 
-__all__ = ['Fetcher', 'Scrap', 'Attribute', 'FloatAttr', 'DateAttr',
-    'DatetimeAttr']
+__all__ = ['Fetcher', 'Scrap', 'Attribute', 'FloatAttr', 'DateAttr', 'DatetimeAttr']
 
 class AttrDict(dict):
     def __getattr__(self, attr):
@@ -35,14 +35,21 @@ class Fetcher(object):
     def parse(self, content):
         """    it receives the fetched content, parses it and returns a Scrap."""
         raise NotImplemented('This method must be inherited.')
-        
+
+
 class Scrap(object):
     """    Scrap class represents a bunch of data collected from information
         sources.
     """
     def __new__(cls, *args, **kwargs):
         obj = super(Scrap, cls).__new__(cls)
+        pairs = [(k,v) for k,v in cls.__dict__.items() if isinstance(v, Attribute)]
+        obj.xpaths = {}
         obj.attrs = {}
+        for k,v in pairs:
+            v.index = k
+            obj.xpaths[k] = v.xpath
+            obj.attrs[k] = None
         return obj
     
     def __init__(self, **kwargs):
@@ -60,25 +67,27 @@ class Scrap(object):
                     raise e
                     
     def __repr__(self):
-        unlikely = lambda x: not x.startswith('__') \
-            and x not in ('attrs', '_error_is_none')
-        prop_names = [member[0] for member in inspect.getmembers(self) if unlikely(member[0])]
         d = {}
-        for propname in prop_names:
+        for propname in self.attrs:
             d[propname] = getattr(self, propname)
         return pprint.pformat(d)
     
     __str__ = __repr__
+    
+    def lxml_parser(self, content):
+        doc = html.document_fromstring(content)
+        for k, xpath in self.xpaths.items():
+            elms = doc.xpath(xpath)
+            setattr(self, k, [r.text.strip() if r.text else '' for r in elms])
+
 
 class Attribute(object):
     """    Attribute class is a descriptor which represents each chunk of
         data extracted from a source of information.
     """
-    index = 0
-    def __init__(self, repeat=False, transform=lambda x: x):
-        Attribute.index += 1
-        self.index = Attribute.index
-        # self.value = None
+    def __init__(self, xpath, repeat=False, transform=lambda x: x):
+        self.xpath = xpath
+        self.index = None
         self.repeat = repeat
         self.transform = transform
     
@@ -87,15 +96,13 @@ class Attribute(object):
     
     def __set__(self, obj, value):
         """sets attribute's value"""
-        value = self.parse(value)
+        try:
+            iter(value)
+        except:
+            value = [value]
+        value = [self.parse(v) for v in value]
         value = self.transform(value)
-        if self.repeat:
-            try:
-                obj.attrs[self.index].append(value)
-            except:
-                obj.attrs[self.index] = [value]
-        else:
-            obj.attrs[self.index] = value
+        obj.attrs[self.index] = value
     
     def __get__(self, obj, typo=None):
         """gets attribute's value"""
@@ -107,6 +114,7 @@ class Attribute(object):
     def __delete__(self, obj):
         """resets attribute's initial state"""
         obj.attrs[self.index] = None
+
 
 class FloatAttr(Attribute):
     """    FloatAttr class is an Attribute descriptor which tries to convert to 
@@ -132,6 +140,7 @@ class FloatAttr(Attribute):
         else:
             value = float(value)
         return value
+
 
 class BaseDatetimeAttr(Attribute):
     """    BaseDatetimeAttr class is an Attribute descriptor which parses a string
