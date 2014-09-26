@@ -9,6 +9,8 @@ handlers:
   static_dir: static
 - url: /bizdays(/.*)?
   script: bdh.app # bizdays handler
+- url: /bvmf(/.*)?
+  script: bvmfh.app # bvmf handler
 - url: /.*
   script: main.app
 
