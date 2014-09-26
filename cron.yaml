@@ -1,0 +1,13 @@
+
+cron:
+- description: daily download job
+  url: /bvmf/curves/download/PRE
+  schedule: every mon,tue,wed,thu,fri 19:30
+  timezone: America/Sao_Paulo
+- description: daily download job
+  url: /bvmf/futures/download
+  schedule: every mon,tue,wed,thu,fri 19:30
+  timezone: America/Sao_Paulo
+# - description: new daily summary job
+#   url: /tasks/summary
+#   schedule: every sat,sun 12:00
