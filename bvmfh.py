@@ -247,7 +247,7 @@ class FuturesHandler(WelHandler):
                 logging.warn(row)
                 logging.warn('Error parsing contract code')
             else:
-                _row = zip(ds.headers, (cel0+row[1], 'BRL', tp.parse(row[3]), mat, 100000.0, tp.parse(row[3])), 'Future')
+                _row = zip(ds.headers, (cel0+row[1], 'BRL', tp.parse(row[3]), mat, 100000.0, tp.parse(row[3]), 'Future'))
                 if not code:
                     ds.add(**dict(_row))
                 elif code and cel0 == code:
