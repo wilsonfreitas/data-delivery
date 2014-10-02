@@ -138,6 +138,7 @@ class CurvesHandler(WelHandler):
         ds.headers = ['terms', 'rates']
         ds.refdate = str(scrap.refdate)
         ds.name = code
+        ds.Type = 'ZeroCurve'
         settings = CURVES_CODES_MAP[code]
         for k, v in settings.iteritems():
             setattr(ds, k, v)
@@ -238,7 +239,7 @@ class FuturesHandler(WelHandler):
             return x
         col1 = [x.split('-')[0].strip() for x in reduce(fulfill, [row[0] for row in data], [])]
         ds = tinydf.DataFrame()
-        ds.headers = ['name', 'currency', 'spot price', 'maturity', 'notional', 'strike price']
+        ds.headers = ['name', 'currency', 'spot price', 'maturity', 'notional', 'strike price', 'Type']
         for row, cel0 in zip(data, col1):
             try:
                 mat = contract_to_maturity(row[1])
@@ -246,7 +247,7 @@ class FuturesHandler(WelHandler):
                 logging.warn(row)
                 logging.warn('Error parsing contract code')
             else:
-                _row = zip(ds.headers, (cel0+row[1], 'BRL', tp.parse(row[3]), mat, 100000.0, tp.parse(row[3])))
+                _row = zip(ds.headers, (cel0+row[1], 'BRL', tp.parse(row[3]), mat, 100000.0, tp.parse(row[3])), 'Future')
                 if not code:
                     ds.add(**dict(_row))
                 elif code and cel0 == code:
