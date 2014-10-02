@@ -55,7 +55,7 @@ class TextParser(object):
         r'^[Tt][Rr][Uu][eE]|[Ff][Aa][Ll][Ss][Ee]$'
         return eval(text.lower().capitalize())
     
-    def parseBoolean(self, text, match):
+    def parseBoolean2(self, text, match):
         r'^(sim|Sim|SIM|n.o|N.o|N.O)$'
         return text[0].lower() == 's'
     
