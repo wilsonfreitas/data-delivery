@@ -135,9 +135,9 @@ class CurvesHandler(WelHandler):
         l = scrap.cols + 1
         data = [tuple(scrap.data[i:i+l]) for i in range(0, len(scrap.data), l)]
         ds = tinydf.DataFrame()
-        ds.headers = ['terms', 'rates']
-        ds.refdate = str(scrap.refdate)
-        ds.name = code
+        ds.headers = ['Terms', 'Rates']
+        ds.RefDate = str(scrap.refdate)
+        ds.Name = code
         ds.Type = 'ZeroCurve'
         settings = CURVES_CODES_MAP[code]
         for k, v in settings.iteritems():
@@ -239,7 +239,7 @@ class FuturesHandler(WelHandler):
             return x
         col1 = [x.split('-')[0].strip() for x in reduce(fulfill, [row[0] for row in data], [])]
         ds = tinydf.DataFrame()
-        ds.headers = ['name', 'currency', 'spot price', 'maturity', 'notional', 'strike price', 'Type']
+        ds.headers = ['Name', 'Currency', 'SpotPrice', 'Maturity', 'Notional', 'StrikePrice', 'Type']
         for row, cel0 in zip(data, col1):
             try:
                 mat = contract_to_maturity(row[1])
