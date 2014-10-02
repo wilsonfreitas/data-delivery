@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="page-header">
+	<h1>BVMF - Curvas</h1>
+</div>
+<div class="col-md-12">
+	<div class="col-md-6"></div>
+	<div id="myfirstchart" style="height: 500px;" class="col-md-6"></div>
+</div>
+{% endblock %}
+{% block script %}
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<!-- <link rel="stylesheet" href="http://cdn.oesmith.co.uk/morris-0.5.1.css"> -->
+<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script> -->
+<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script> -->
+<!-- <script src="http://cdn.oesmith.co.uk/morris-0.5.1.min.js"></script> -->
+<script type="text/javascript">
+// var greater = function (a, b) {
+// 	return (a > b) ? a : b;
+// }, lesser = function (a, b) {
+// 	return (a < b) ? a : b;
+// };
+var callback = function(result) {
+	var filtered = result.filter(function(x) { return x.DU <= 756; }),
+	min = filtered.reduce(function (a, b) {
+		return lesser(a, b.rates);
+	}, Infinity), max = filtered.reduce(function (a, b) {
+		return greater(a, b.rates);
+	}, -Infinity);
+	max = Math.round(max*1.1, 2);
+	min = Math.round(min*0.9, 2);
+	new Morris.Line({
+		element: 'myfirstchart',
+		data: filtered,
+		pointSize: 0,
+		ymin: 'auto',
+		ymax: 'auto',
+		xkey: 'dates',
+		ykeys: ['rates'],
+		labels: ['Rates'],
+		hideHover: true,
+		labels: ['PRE']
+	});
+}
+marajax.go({url: '/bvmf/curves/PRE/json',
+    success: callback,
+    output: 'json'
+});
+</script>
+{% endblock %}
