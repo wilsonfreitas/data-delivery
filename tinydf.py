@@ -68,7 +68,10 @@ class DataFrame(object):
                 for h in self.headers:
                     row[h] = self.data[h][i]
                 tab.append(row)
-            df_dict['data'] = tab
+            if df_dict:
+                df_dict['data'] = tab
+            else:
+                df_dict = tab
         return json.dumps(df_dict)
 
 
