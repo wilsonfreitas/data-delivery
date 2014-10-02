@@ -121,8 +121,8 @@ CURVES_CODES_MAP = {
 	'DIC': dict(compounding='discrete', daycount='business/252', calendar='ANBIMA'),
 }
 
-@route(r'/bvmf/curves/<code:...>/<format:(json|csv|yaml)>')
-@route(r'/bvmf/curves/<code:...>/<refdate:\d{4}-\d{2}-\d{2}>/<format:(json|csv|yaml)>')
+@route(r'/bvmf/curves/<code:...>/<format:(json|csv)>')
+@route(r'/bvmf/curves/<code:...>/<refdate:\d{4}-\d{2}-\d{2}>/<format:(json|csv)>')
 class CurvesHandler(WelHandler):
     def get(self, refdate=None, code='PRE', format='json'):
         downloader = CurvesDownloader(refdate=refdate, code=code)
@@ -219,9 +219,9 @@ def contract_to_maturity(contract):
     return date(year, month, 1).isoformat()
 
 
-@route(r'/bvmf/futures/<format:(json|csv|yaml)>')
-@route(r'/bvmf/futures/<code:...>/<format:(json|csv|yaml)>')
-@route(r'/bvmf/futures/<code:...>/<date:\d{4}-\d{2}-\d{2}>/<format:(json|csv|yaml)>')
+@route(r'/bvmf/futures/<format:(json|csv)>')
+@route(r'/bvmf/futures/<code:...>/<format:(json|csv)>')
+@route(r'/bvmf/futures/<code:...>/<date:\d{4}-\d{2}-\d{2}>/<format:(json|csv)>')
 class FuturesHandler(WelHandler):
     def get(self, date=None, code=None, format='json'):
         downloader = FuturesDownloader(refdate=date)
@@ -258,9 +258,6 @@ class FuturesHandler(WelHandler):
         elif format == 'csv':
             self.response.headers['Content-Type'] = 'text/csv'
             self.response.write(ds.csv)
-        elif format == 'yaml':
-            self.response.headers['Content-Type'] = 'text/x-yaml'
-            self.response.write(ds.yaml)
 
 
 @route(r'/bvmf/futures')
