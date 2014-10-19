@@ -23,13 +23,13 @@ class IndexHandler(WelHandler):
         nwd = self.request.get("nwd", ('Saturday', 'Sunday'))
         holidays = self.request.get('holidays', '\n'.join([d.isoformat() for d in ANBIMA.holidays]))
         holidays = holidays.split()
-        cal = Calendar([datetime.strptime(d, '%Y-%m-%d').date() for d in holidays], weekdays=nwd)
+        cal = Calendar(holidays, weekdays=nwd)
         dates_from = self.request.get('from')
         dates_from = dates_from.split() if dates_from else None
         dates_to = self.request.get('to')
         dates_to = dates_to.split() if dates_to else None
         if dates_to and dates_to:
-            bd = [unicode(cal.bizdays(t)) for t in izip(dates_from, dates_to)]
+            bd = [str(d) for d in cal.vec.bizdays(dates_from, dates_to)]
             logging.info(bd)
         else:
             bd = None
