@@ -16,7 +16,7 @@ import gcs
 import tinydf
 import textparser as tp
 
-CALENDAR = Calendar(ANBIMA.holidays, weekdays=('Saturday', 'Sunday'))
+CALENDAR = Calendar(ANBIMA.holidays, weekdays=('Saturday', 'Sunday'), name='ANBIMA')
 
 class asdate(object):
     def __init__(self, d=None, format='%Y-%m-%d'):
@@ -71,12 +71,11 @@ class Downloader(object):
 
 
 class DownloadHandler(WelHandler):
-    calendar = Calendar(ANBIMA.holidays, weekdays=('Saturday', 'Sunday'))
     id = None
     def get(self, **kwargs):
         logging.info('Starting download for refdate: %s', kwargs.get('refdate'))
         the_day = asdate(kwargs.get('refdate'))
-        if self.calendar.isbizday(str(the_day)):
+        if CALENDAR.isbizday(str(the_day)):
             self.process(**kwargs)
         else:
             logging.warning('%s not a business day - skipping', today)
@@ -213,12 +212,120 @@ class FuturesDownloadHandler(DownloadHandler):
         downloader.download()
 
 
-def contract_to_maturity(contract):
-    mat_month = dict(F=1,G=2,H=3,J=4,K=5,M=6,N=7,Q=8,U=9,V=10,X=11,Z=12)
-    month = mat_month[contract[0]]
-    year = 2000 + int(contract[1:])
-    return date(year, month, 1).isoformat()
+def apply_close_to_rule(expr, weekday, adjust):
+    widx = ('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun').index(weekday)
+    def compute_maturity(year, month):
+        dt = CALENDAR.getdate(expr, year, month)
+        if dt.weekday() != widx:
+            dt1 = CALENDAR.getdate('first {} before {}'.format(weekday, expr), year, month)
+            dt2 = CALENDAR.getdate('first {} after {}'.format(weekday, expr), year, month)
+            dt = dt1 if (dt-dt1) < (dt2-dt) else dt2
+        return dt, {
+            'following': lambda x: CALENDAR.following(x),
+            'preceding': lambda x: CALENDAR.preceding(x),
+            'modified-following': lambda x: CALENDAR.modified_following(x),
+            'modified-preceding': lambda x: CALENDAR.modified_preceding(x),
+        }[adjust](dt)
+    return compute_maturity
 
+
+def apply_maturity_rule(expr, adjust):
+    def compute_maturity(year, month):
+        dt = CALENDAR.getdate(expr, year, month)
+        return dt, {
+            'following': lambda x: CALENDAR.following(x),
+            'preceding': lambda x: CALENDAR.preceding(x),
+            'modified-following': lambda x: CALENDAR.modified_following(x),
+            'modified-preceding': lambda x: CALENDAR.modified_preceding(x),
+        }[adjust](dt)
+    return compute_maturity
+
+
+contract_maturity_rule = lambda x: {
+    'AUD': apply_maturity_rule('first day', 'following'),
+    'BGI': apply_maturity_rule('last day', 'modified-following'),
+    'BRI': apply_maturity_rule('first day', 'following'),
+    'CAD': apply_maturity_rule('first day', 'following'),
+    'CCM': apply_maturity_rule('15th day', 'following'),
+    'CHF': apply_maturity_rule('first day', 'following'),
+    'CLP': apply_maturity_rule('first day', 'following'),
+    'DAP': apply_maturity_rule('15th day', 'following'),
+    'DDI': apply_maturity_rule('first day', 'following'),
+    'DI1': apply_maturity_rule('first day', 'following'),
+    'DOL': apply_maturity_rule('first day', 'following'),
+    'ETH': apply_maturity_rule('last day', 'modified-following'),
+    'EUR': apply_maturity_rule('first day', 'following'),
+    'FRC': apply_maturity_rule('first day', 'following'),
+    'GBP': apply_maturity_rule('first day', 'following'),
+    'IAP': apply_maturity_rule('15th day', 'following'),
+    'ICF': apply_maturity_rule('6th bizday before last day', 'following'),
+    'IND': apply_close_to_rule('15th day', 'wed', 'following'),
+    'ISP': apply_maturity_rule('third fri', 'following'),
+    'JPY': apply_maturity_rule('first day', 'following'),
+    'KFE': apply_maturity_rule('6th bizday before last day', 'following'),
+    'MXN': apply_maturity_rule('first day', 'following'),
+    'NZD': apply_maturity_rule('first day', 'following'),
+    'OC1': apply_maturity_rule('first day', 'following'),
+    'OZ1': apply_maturity_rule('last day', 'modified-following'),
+    'SFI': apply_maturity_rule('second day before first day', 'following'),
+    'SJC': apply_maturity_rule('second day before first day', 'following'),
+    'T10': apply_maturity_rule('first day', 'following'),
+    'TRY': apply_maturity_rule('first day', 'following'),
+    'WDO': apply_maturity_rule('first day', 'following'),
+    'WEU': apply_maturity_rule('first day', 'following'),
+    'WIN': apply_close_to_rule('15th day', 'wed', 'following'),
+    'ZAR': apply_maturity_rule('first day', 'following')
+}[x]
+
+
+maturity_month = lambda x: {
+    'F': 1,
+    'G': 2,
+    'H': 3,
+    'J': 4,
+    'K': 5,
+    'M': 6,
+    'N': 7,
+    'Q': 8,
+    'U': 9,
+    'V': 10,
+    'X': 11,
+    'Z': 12
+}[x]
+
+
+def parse_maturity_code(maturity_code):
+    month = maturity_month(maturity_code[0])
+    year = 2000 + int(maturity_code[1:])
+    return (year, month)
+
+
+def contract_to_maturity(contract):
+    mat_code = contract[-3:]
+    year, month = parse_maturity_code(mat_code)
+    ctr_code = contract[:3]
+    return contract_maturity_rule(ctr_code)(year, month)
+
+
+# <select name="cboMercado" onChange="Busca(this.selectedIndex)" style="width: 150px;" class="comboAmarelo">
+#   <option value="0">Selecione</option>
+#   <option value="2" selected>Futuro</option>
+#   <option value="3" >Opções
+#   s/ disponível</option>
+#   <option value="4" >Opções
+#   s/ futuro</option>
+#   <option value="5" >Swap</option>
+#   <option value="6" >Volatilidade</option>
+# </select>
+
+# curl 'http://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/SeriesAutorizadas1.asp?pagetype=pop&caminho='
+# -H 'Cookie: ASPSESSIONIDQSRRRQAB=LIPGKJABACEEHILKACPCDKGN; ASPSESSIONIDSQTSRRBB=KLEJABABOBMKHCOIKIPOHHGC; ASPSESSIONIDCCRSASRQ=FLEHKHABLLONFHBELKOIBJIH; TS0178b35a=011d592ce1fe3c24ac6287091597da0ca7244757370bb78de3317bed7cd915fd1337740c15e299461487373132f9d233cdfc4f8930ba79e507cefe93a7ccd7e33eea1cc7c6'
+# -H 'Origin: http://www2.bmf.com.br'
+# -H 'Accept-Encoding: gzip, deflate'
+# -H 'Accept-Language: en-US,en;q=0.8'
+# -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.2 Safari/537.36'
+# -H 'Content-Type: application/x-www-form-urlencoded' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' -H 'Cache-Control: max-age=0' -H 'Referer: http://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/SeriesAutorizadas1.asp?pagetype=pop&caminho=' -H 'Connection: keep-alive' --data
+# 'cboMercado=2&cboMercadoria=2-ACF' --compressed
 
 @route(r'/bvmf/futures/<format:(json|csv)>')
 @route(r'/bvmf/futures/<code:...>/<format:(json|csv)>')
@@ -239,15 +346,18 @@ class FuturesHandler(WelHandler):
             return x
         col1 = [x.split('-')[0].strip() for x in reduce(fulfill, [row[0] for row in data], [])]
         ds = tinydf.DataFrame()
-        ds.headers = ['Name', 'Currency', 'SpotPrice', 'Maturity', 'Notional', 'StrikePrice', 'Type']
+        ds.headers = ['Name', 'Currency', 'SpotPrice', 'Maturity', 'MaturityAdjusted', 'Notional', 'StrikePrice', 'Type']
         for row, cel0 in zip(data, col1):
+            contract = cel0 + row[1]
             try:
-                mat = contract_to_maturity(row[1])
-            except:
+                mat, mat_adj = contract_to_maturity(contract)
+            except Exception as ex:
+                logging.warn(ex)
                 logging.warn(row)
                 logging.warn('Error parsing contract code')
             else:
-                _row = zip(ds.headers, (cel0+row[1], 'BRL', tp.parse(row[3]), mat, 100000.0, tp.parse(row[3]), 'Future'))
+                _row = zip(ds.headers, (contract, 'BRL', tp.parse(row[3]), mat.isoformat(), mat_adj.isoformat(),
+                    100000.0, tp.parse(row[3]), 'Future'))
                 if not code:
                     ds.add(**dict(_row))
                 elif code and cel0 == code:
